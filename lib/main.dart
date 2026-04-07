@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-
-// Importa tus pantallas
-import 'screens/user_list_screen.dart';
-import 'screens/user_form_screen.dart';
-import 'screens/profile_screen.dart';
-import 'screens/settings_screen.dart';
+import 'data/users_data.dart';
+import 'screens/registration_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,24 +12,76 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Solemne 01',
       debugShowCheckedModeBanner: false,
-
-      // Tema (IMPORTANTE para la nota)
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      home: const UserListScreen(),
+    );
+  }
+}
 
-      // Pantalla inicial
-      initialRoute: '/',
+class UserListScreen extends StatefulWidget {
+  const UserListScreen({super.key});
 
-      // Rutas
-      routes: {
-        '/': (context) => const UserListScreen(),
-        '/form': (context) => const UserFormScreen(),
-        '/profile': (context) => const ProfileScreen(),
-        '/settings': (context) => const SettingsScreen(),
-      },
+  @override
+  State<UserListScreen> createState() => _UserListScreenState();
+}
+
+class _UserListScreenState extends State<UserListScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Lista de Usuarios"),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: ListView.builder(
+        itemCount: usuariosSolemne.length,
+        itemBuilder: (context, index) {
+          final usuario = usuariosSolemne[index];
+          
+          return ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: const Icon(Icons.person),
+            ),
+            title: Text(usuario["nombre"]),
+            subtitle: Text(usuario["correo"]),
+            onTap: () async {
+              final usuarioEditado = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RegistrationScreen(usuarioExistente: usuario),
+                ),
+              );
+
+              if (usuarioEditado != null) {
+                setState(() {
+                  usuariosSolemne[index] = usuarioEditado;
+                });
+              }
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final nuevoUsuario = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+          );
+
+          if (nuevoUsuario != null) {
+            setState(() {
+              usuariosSolemne.add(nuevoUsuario);
+            });
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

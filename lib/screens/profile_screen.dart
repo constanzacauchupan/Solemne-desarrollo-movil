@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'settings_screen.dart';
+import 'registration_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final Map<String, dynamic> usuario;
 
   const ProfileScreen({super.key, required this.usuario});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   String _capitalize(String s) =>
       s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 
@@ -13,6 +19,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final usuario = widget.usuario;
     final String nombre = usuario["nombre"] ?? "";
 
     return Scaffold(
@@ -20,6 +27,23 @@ class ProfileScreen extends StatelessWidget {
         title: const Text("Perfil"),
         backgroundColor: colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Editar datos',
+            onPressed: () async {
+              final editado = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      RegistrationScreen(usuarioExistente: usuario),
+                ),
+              );
+              if (editado != null) {
+                editado.forEach((k, v) => usuario[k] = v);
+                setState(() {});
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Configuración',
@@ -159,19 +183,44 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 32),
 
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.settings_outlined),
-                label: const Text('Editar preferencias'),
-                style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14)),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => SettingsScreen(usuario: usuario)),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Editar datos'),
+                    style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14)),
+                    onPressed: () async {
+                      final editado = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RegistrationScreen(
+                              usuarioExistente: usuario),
+                        ),
+                      );
+                      if (editado != null) {
+                        editado.forEach((k, v) => usuario[k] = v);
+                        setState(() {});
+                      }
+                    },
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.settings_outlined),
+                    label: const Text('Preferencias'),
+                    style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14)),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => SettingsScreen(usuario: usuario)),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
           ],

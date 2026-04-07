@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'data/users_data.dart';
 import 'screens/registration_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,22 +43,33 @@ class _UserListScreenState extends State<UserListScreen> {
         itemCount: usuariosSolemne.length,
         itemBuilder: (context, index) {
           final usuario = usuariosSolemne[index];
-          
+
           return ListTile(
             leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              backgroundColor:
+                  Theme.of(context).colorScheme.primaryContainer,
               child: const Icon(Icons.person),
             ),
             title: Text(usuario["nombre"]),
             subtitle: Text(usuario["correo"]),
-            onTap: () async {
+            // Tap corto → ver Perfil
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProfileScreen(usuario: usuario),
+                ),
+              );
+            },
+            // Tap largo → Editar datos básicos (comportamiento original)
+            onLongPress: () async {
               final usuarioEditado = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RegistrationScreen(usuarioExistente: usuario),
+                  builder: (_) =>
+                      RegistrationScreen(usuarioExistente: usuario),
                 ),
               );
-
               if (usuarioEditado != null) {
                 setState(() {
                   usuariosSolemne[index] = usuarioEditado;
@@ -71,9 +83,9 @@ class _UserListScreenState extends State<UserListScreen> {
         onPressed: () async {
           final nuevoUsuario = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+            MaterialPageRoute(
+                builder: (_) => const RegistrationScreen()),
           );
-
           if (nuevoUsuario != null) {
             setState(() {
               usuariosSolemne.add(nuevoUsuario);
